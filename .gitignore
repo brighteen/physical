@@ -1,9 +1,29 @@
-교재
-실습
+교재/
+실습/
 memo.md
-# results/
+**/results/*.png
+**/results/*.gif
+**/results/*.csv
+**/results/*.jpg
+**/results/*.jpeg
 
 .venv
+
+# ROS2 build artifacts & logs
+**/install/
+**/log/
+
+# Simulation logs & datasets
+**/*.bag
+**/*.db3
+**/rosbag2_*/
+
+# Environment variables
+**/.env
+**/*.env
+
+# Local reports & documents
+**/*.pdf
 
 # Python
 __pycache__/``

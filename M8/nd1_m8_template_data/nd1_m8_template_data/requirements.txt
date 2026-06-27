@@ -1,0 +1,26 @@
+# M8 Python 의존성
+# ROS2 Humble 패키지는 apt으로 설치 (아래는 Python 레벨 추가 의존성)
+#
+# 설치 방법:
+#   pip install -r requirements.txt
+#
+# ROS2 패키지 설치 (별도):
+#   sudo apt install -y \
+#     ros-humble-desktop \
+#     ros-humble-ros-gz \
+#     ros-humble-navigation2 ros-humble-nav2-bringup \
+#     ros-humble-slam-toolbox \
+#     ros-humble-turtlebot4-simulator
+
+# 테스트 프레임워크
+pytest>=7.0.0
+
+# 단위 테스트용 수학/시뮬레이션 (ROS2 없이 로직 검증)
+numpy>=1.26.0
+matplotlib>=3.8.0
+
+# 코드 품질
+flake8>=6.0.0
+
+# Jupyter (선택 — notebooks/ 실행 시)
+jupyter>=1.0.0
