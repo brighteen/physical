@@ -26,7 +26,7 @@
 
 ## 1. 가상 물류창고 시뮬레이션 환경 구축
 
-![alt text](screenshot/1.png)
+![alt text](assets/1.png)
 
 * **변경 사항**: TurtleBot3 기본 기본 맵 ➡️ 현실적인 3D 물류 창고(Warehouse) 환경
 * **목적**: 더 입체적이고 음영이 뚜렷하며 통로가 협소한 실제 산업 창고 환경을 모사하여 자율주행 스택 검증
@@ -39,16 +39,16 @@
 
 | LiDAR 센서 감지 미스 및 지도 생성 오류 사례 |
 | :---: |
-| <img src="screenshot/2-1.png" width="480" alt="지도 생성 왜곡 1"> |
-| <img src="screenshot/2-2.png" width="480" alt="지도 생성 왜곡 2"> |
-| <img src="screenshot/2-3.png" width="480" alt="지도 생성 왜곡 3"> |
+| <img src="assets/2-1.png" width="480" alt="지도 생성 왜곡 1"> |
+| <img src="assets/2-2.png" width="480" alt="지도 생성 왜곡 2"> |
+| <img src="assets/2-3.png" width="480" alt="지도 생성 왜곡 3"> |
 
 
 * **발견된 문제**:
   - 라이다 센서에 의해 검출되지 않은 장애물(예: 투명한 벽, 매우 높은 위치의 물체)이 있는 공간으로 로봇이 지나갈 때 해당 영역이 지도에 표시되지 않음
   - 텅 빈 넓은 공간에서 지도가 온전히 그려지지 않거나 부분적으로 왜곡되는 현상 발생
 
-![alt text](screenshot/2-4.png)
+![alt text](assets/2-4.png)
 
 * **원인 분석**:
   - 라이다는 2D 평면에서만 스캔하므로 고도 정보를 놓칠 수 있음
@@ -63,7 +63,7 @@
 
 ## 3. 경로 계획 및 내비게이션 최적화
 
-![alt text](screenshot/3-1.png)
+![alt text](assets/3-1.png)
 
 * **N개 포인트 확장**: 로봇이 단일 경로뿐 아니라 A지점 ➡️ B지점 ➡️ 경유지를 아우르는 다중 웨이포인트를 순회하도록 제어 코드 확장
 * **내비게이션 모순**: 맵상에 미처 그려지지 않은 일부 통로 구역도 Nav2의 동적 장애물 레이어(Local Costmap)가 실시간으로 빈 공간을 판단하여 안전하게 통과함을 검증함
@@ -72,13 +72,13 @@
 
 ## 4. 카메라 기반 객체 인식 및 ArUco 마커 디버깅
 
-![alt text](screenshot/4_1.png)
+![alt text](assets/4_1.png)
 
 * **현재 상태**: 
   - 로봇의 카메라 뷰를 통해 박스 인식 성공적으로 확인
   - 기본적인 컴퓨터 비전 파이프라인 작동 중
 
-<video controls src="screenshot/4_2.mp4" title="Title"></video>
+<video controls src="assets/4_2.mp4" title="Title"></video>
 
 ---
 
@@ -90,11 +90,11 @@
   1. **초기 작은 마커 크기**: 카메라 해상도 문제로 인식률 불량
   2. **마커 확대 후에도 기각(Reject) 현상**: 마커를 키웠음에도 검출 실패
 
-<video controls src="screenshot/5_1작은마커.mp4" title="Title"></video>
+<video controls src="assets/5_1작은마커.mp4" title="Title"></video>
 
 * 마커의 크기를 키웠으나 인식 실패 지속 발생
 
-<video controls src="screenshot/5_2_마커확대.mp4" title="Title"></video>
+<video controls src="assets/5_2_마커확대.mp4" title="Title"></video>
 
 ### [실험 2] NumPy 2.x 충돌 및 WSL FPS 병목 진단
 * **FPS 병목**: WSL GPU 가속 문제로 카메라 주기가 **0.6 ~ 0.8Hz**로 떨어져 이동 중 마커 검출 누락 발생  
@@ -108,8 +108,8 @@
 
 | Roboflow YOLOv8 오검출 및 터미널 로그 사례 |
 | :---: |
-| <img src="screenshot/6_yolo도입1.png" width="480" alt="YOLO 오인식 및 바닥 검출 사례 1"> |
-| <img src="screenshot/6_yolo도입2.png" width="480" alt="YOLO 오인식 및 터미널 로그 사례 2"> |
+| <img src="assets/6_yolo도입1.png" width="480" alt="YOLO 오인식 및 바닥 검출 사례 1"> |
+| <img src="assets/6_yolo도입2.png" width="480" alt="YOLO 오인식 및 터미널 로그 사례 2"> |
 
 
 
@@ -151,7 +151,7 @@
 ├── aruco_detector.py         # Odom 게이팅 적용 ArUco 감지 노드
 ├── tb3_nav_waypoint.py       # 동적 선회 FSM 주행 제어 스크립트
 ├── map/                      # 맵 및 설정 파일 (.yaml, .pgm)
-├── screenshot/               # 프로젝트 미디어 저장소
+├── assets/                   # 프로젝트 미디어 저장소
 ├── m13_ws/                   # ROS 2 capstone workspace
 └── turtlebot3_ws/            # TurtleBot3 Waffle Pi 공식 패키지
 ```
