@@ -1,0 +1,32 @@
+# Editor and local workspace settings
+.vscode/
+.idea/
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+.coverage
+.coverage.*
+htmlcov/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ROS / build artifacts
+build/
+install/
+log/
+*.log
+
+# Generated lab outputs
+maps/backups/
+*.bag
+*.db3
+rosbag2_*/

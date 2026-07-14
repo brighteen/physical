@@ -1,0 +1,394 @@
+# ND3-15 Lab parameter presets.
+#
+# 이 파일은 Lab 0~8 Python 실습 스크립트의 파라미터를 한곳에서 바꾸기 위한 설정 파일입니다.
+#
+# 기본 사용 순서:
+#   1. 이 파일에서 원하는 값을 수정한다.
+#   2. 실행될 명령어를 먼저 확인한다.
+#        python3 scripts/lab_params.py --lab lab4 --show-values
+#        python3 scripts/lab_params.py --lab lab4
+#   3. 명령어가 맞으면 실제 실행한다.
+#        python3 scripts/lab_params.py --lab lab4 --run
+#
+# YAML 파일을 저장하지 않고 이번 실행에서만 바꾸고 싶을 때:
+#        python3 scripts/lab_params.py --lab lab6 --set action=cycle --set x=0.8 --set dry_run=true
+#
+# 전체 Lab 명령어를 한 번에 보고 싶을 때:
+#        python3 scripts/lab_params.py --lab all
+#
+# YAML 작성 규칙:
+# - true: 해당 command-line flag를 켭니다. 예: dry_run: true -> --dry-run
+# - false: 해당 flag를 넣지 않습니다.
+# - null: 해당 옵션을 넣지 않습니다.
+# - 숫자: 그대로 전달됩니다. 예: timeout: 120 -> --timeout 120
+# - 리스트: 여러 값을 한 옵션에 전달합니다. 예: algorithms: [astar, rrt] -> --algorithms astar rrt
+# - YAML 이름은 _ 를 쓰고, 실제 명령어는 - 로 바뀝니다.
+#   예: goal_x: 1.0 -> --goal-x 1.0
+
+
+# Lab 0: 환경 점검
+# 실행 스크립트: scripts/lab0_practice.py
+#
+# skip_ros:
+#   true  -> ROS 없이 Python 패키지와 파일만 확인합니다. ROS 환경이 아직 없을 때 빠르게 확인하기 좋습니다.
+#   false -> ros2 command, ROS package, rclpy까지 확인합니다. 실제 실습 PC 점검에 더 적합합니다.
+# static_check:
+#   true  -> tools/static_check.py도 함께 실행합니다. bash/python/yaml/sdf 기본 오류를 더 넓게 확인합니다.
+#   false -> Lab 0 기본 환경 확인만 합니다.
+# strict:
+#   true  -> 하나라도 실패하면 프로그램 종료 코드가 실패가 됩니다. 자동 채점/검사용으로 좋습니다.
+#   false -> 실패 항목을 보여주되 비교적 부드럽게 끝납니다.
+lab0:
+  skip_ros: true
+  static_check: false
+  strict: false
+
+
+# Lab 1: Gazebo 실행 및 topic/TF 확인
+# 실행 스크립트: scripts/lab1_practice.py
+#
+# action:
+#   check        -> 이미 Gazebo가 켜져 있을 때 /clock, /scan, /odom, /tf를 확인합니다.
+#   start-gazebo -> TurtleBot3 Gazebo world를 실행합니다. 긴 실행이므로 Ctrl+C로 종료합니다.
+#   commands     -> Lab 1에서 쓸 명령어 목록만 출력합니다.
+# timeout:
+#   topic sample과 TF 확인을 몇 초 기다릴지 정합니다.
+#   값을 크게 하면 느린 PC에서 성공 가능성이 올라가지만 확인 시간이 길어집니다.
+# dry_run:
+#   true  -> start-gazebo 같은 실행 명령을 실제로 돌리지 않고 출력만 합니다.
+#   false -> 실제 실행합니다.
+lab1:
+  action: check
+  timeout: 5
+  dry_run: false
+
+
+# Lab 2: SLAM 지도 생성, 확인, 백업, 삭제, 복구
+# 실행 스크립트: scripts/lab2_practice.py
+#
+# action:
+#   inspect-map -> map 파일의 해상도, origin, 이미지 크기, free cell 비율을 확인합니다.
+#   list-maps   -> maps/ 안의 yaml 지도 목록을 요약합니다.
+#   save-map    -> SLAM 중인 /map을 prefix 이름으로 저장합니다. ROS/SLAM 실행 중이어야 합니다.
+#   backup-map  -> map yaml과 image 파일을 maps/backups/ 아래로 복사합니다.
+#   delete-map  -> map yaml과 image 파일 삭제를 연습하거나 실제 삭제합니다.
+#   restore-map -> backup_dir에서 maps/로 복구합니다.
+#   commands    -> Lab 2에서 쓸 명령어 목록만 출력합니다.
+# map:
+#   inspect-map, backup-map, delete-map의 대상 지도 yaml입니다.
+#   예: maps/lab_map.yaml을 maps/test_map.yaml로 바꾸면 test_map 파일을 대상으로 작업합니다.
+# prefix:
+#   save-map 때 저장될 파일 이름 앞부분입니다.
+#   prefix: maps/lab_map -> maps/lab_map.yaml, maps/lab_map.pgm 생성
+#   prefix: maps/test_map -> maps/test_map.yaml, maps/test_map.pgm 생성
+# backup_dir:
+#   restore-map에서 복구할 백업 폴더입니다.
+#   null이면 backup-map/delete-map 때 자동으로 maps/backups/lab_map_날짜시간 폴더를 만듭니다.
+# confirm_delete:
+#   false -> delete-map 실행 시 삭제 대상만 보여주고 실제 삭제하지 않습니다. 안전 확인용입니다.
+#   true  -> 실제 삭제를 허용합니다. 기본적으로 삭제 전에 백업합니다.
+# no_backup:
+#   false -> delete-map 전에 자동 백업합니다. 권장값입니다.
+#   true  -> 백업 없이 삭제합니다. 실습 제출 파일을 잃을 수 있으니 조심하세요.
+# overwrite:
+#   false -> restore-map 시 같은 이름 파일이 있으면 덮어쓰지 않습니다.
+#   true  -> restore-map 시 기존 map 파일을 덮어씁니다.
+# dry_run:
+#   true  -> save/backup/delete/restore 작업을 실제로 하지 않고 무엇을 할지만 출력합니다.
+#   false -> 실제 파일 저장/복사/삭제/복구를 수행합니다.
+lab2:
+  action: inspect-map
+  map: maps/lab_map.yaml
+  prefix: maps/lab_map
+  backup_dir: null
+  confirm_delete: false
+  no_backup: false
+  overwrite: false
+  dry_run: false
+
+
+# Lab 3: 저장 지도 기반 Nav2, 초기 위치, goal 전송
+# 실행 스크립트: scripts/lab3_practice.py
+#
+# action:
+#   commands     -> Lab 3에서 쓸 명령어 목록만 출력합니다.
+#   map-check    -> map 파일과 /map topic sample을 확인합니다.
+#   status       -> Nav2 node와 lifecycle 상태를 확인합니다.
+#   start-nav2   -> official TurtleBot3 Navigation2 launch를 실행합니다.
+#   initial-pose -> AMCL 초기 위치를 /initialpose로 publish합니다.
+#   goal         -> NavigateToPose action goal을 보냅니다.
+#   stop         -> /cmd_vel에 0 속도를 publish해 로봇을 멈춥니다.
+# map:
+#   start-nav2/map-check에 사용할 지도 yaml입니다.
+# x, y, yaw:
+#   initial-pose 또는 goal에서 쓰는 위치입니다.
+#   x, y는 map 좌표계 meter 단위이고 yaw는 radian 단위입니다.
+#   yaw 예시: 0.0=정면, 1.5708=왼쪽 90도, 3.1415=뒤쪽 180도
+# frame:
+#   보통 map을 사용합니다. frame을 바꾸면 pose/goal이 해석되는 좌표계가 바뀝니다.
+# timeout:
+#   goal 결과를 기다리는 최대 시간입니다.
+#   goal이 멀거나 로봇이 느리면 값을 키웁니다.
+# dry_run:
+#   true  -> start-nav2 실행 명령을 출력만 합니다.
+#   false -> 실제 실행합니다.
+lab3:
+  action: status
+  map: maps/lab_map.yaml
+  x: 0.0
+  y: 0.0
+  yaw: 0.0
+  frame: map
+  timeout: 120
+  dry_run: false
+
+
+# Lab 4: Offline planner 비교
+# 실행 스크립트: scripts/lab4_practice.py
+#
+# 이 Lab은 ROS 없이 map 파일만으로 Dijkstra, A*, Weighted A*, Greedy, RRT를 비교합니다.
+# 결과는 CSV와 PNG로 저장됩니다.
+#
+# map:
+#   비교에 사용할 지도 yaml입니다.
+# start_x, start_y:
+#   경로 시작 위치입니다. map 좌표계 meter 단위입니다.
+# goal_x, goal_y:
+#   목표 위치입니다. 바꾸면 모든 planner가 새 목표까지 경로를 다시 계산합니다.
+# algorithms:
+#   비교할 planner 목록입니다.
+#   dijkstra       -> 최단 경로 기준 baseline입니다. 느릴 수 있지만 비교 기준으로 좋습니다.
+#   astar          -> 휴리스틱을 써서 보통 Dijkstra보다 빠릅니다.
+#   weighted_astar -> A*보다 목표 방향을 더 강하게 봅니다. 빠를 수 있지만 최적성이 줄 수 있습니다.
+#   greedy         -> 목표에 가까워지는 방향을 강하게 따릅니다. 빠르지만 막힌 길에서 비효율적일 수 있습니다.
+#   rrt            -> 무작위 샘플링 기반 planner입니다. seed와 sampling 설정에 따라 결과가 달라질 수 있습니다.
+# heuristic_weight:
+#   weighted_astar에서 휴리스틱을 얼마나 강하게 볼지 정합니다.
+#   값을 키우면 보통 빨라질 수 있지만 경로가 최단에서 멀어질 수 있습니다.
+# rrt_iterations:
+#   RRT가 샘플을 시도하는 최대 횟수입니다.
+#   값을 키우면 어려운 map에서 성공 가능성이 올라가지만 계산 시간이 늘어납니다.
+# rrt_step_cells:
+#   RRT가 한 번에 뻗는 grid cell 거리입니다.
+#   크게 하면 빠르게 뻗지만 좁은 통로를 놓칠 수 있고, 작게 하면 촘촘하지만 느려질 수 있습니다.
+# rrt_goal_sample_rate:
+#   RRT가 무작위 샘플 대신 goal을 직접 샘플링할 확률입니다.
+#   0.15는 15%라는 뜻입니다. 높이면 goal 쪽으로 더 자주 가지만 탐색 다양성이 줄 수 있습니다.
+# rrt_goal_radius_cells:
+#   RRT가 goal 근처에 도달했다고 판단하는 grid cell 반경입니다.
+#   크게 하면 성공 판정이 쉬워지고, 작게 하면 더 정확히 goal에 접근합니다.
+# rrt_seed:
+#   RRT random seed입니다.
+#   같은 seed는 같은 결과 재현에 유리합니다. seed를 바꾸면 RRT 경로가 달라질 수 있습니다.
+# sparse_step:
+#   A* 경로를 몇 칸마다 하나씩 남겨 sparse waypoint 경로를 만들지 정합니다.
+#   값이 클수록 waypoint 수가 줄어듭니다.
+# output_csv:
+#   planner별 planning_ms, path_length_m, nodes_expanded 등이 저장되는 파일입니다.
+# output_png:
+#   지도 위 planner별 경로 그림이 저장되는 파일입니다.
+# no_plot:
+#   true  -> PNG를 만들지 않고 CSV/터미널 출력만 만듭니다.
+#   false -> PNG도 함께 만듭니다.
+lab4:
+  map: maps/lab_map.yaml
+  start_x: 0.0
+  start_y: 0.0
+  goal_x: 1.0
+  goal_y: 1.0
+  algorithms:
+    - dijkstra
+    - astar
+    - weighted_astar
+    - greedy
+    - rrt
+  heuristic_weight: 1.5
+  rrt_iterations: 4000
+  rrt_step_cells: 10
+  rrt_goal_sample_rate: 0.15
+  rrt_goal_radius_cells: 10
+  rrt_seed: 7
+  sparse_step: 5
+  output_csv: results/lab4_practice_metrics.csv
+  output_png: results/lab4_practice_paths.png
+  no_plot: false
+
+
+# Lab 5: DWB Safe/Agile offline 속도 정책 비교
+# 실행 스크립트: scripts/lab5_practice.py
+#
+# 이 Lab은 실제 Nav2 DWB 내부를 직접 돌리는 것이 아니라, safe/agile 속도 제한이
+# 궤적과 도착 시간에 어떤 차이를 만드는지 offline unicycle 모델로 관찰합니다.
+#
+# safe_v, safe_w:
+#   safe 정책의 최대 선속도 m/s, 최대 각속도 rad/s입니다.
+#   값을 낮추면 더 천천히 움직이고 duration_s가 커지는 경향이 있습니다.
+# agile_v, agile_w:
+#   agile 정책의 최대 선속도 m/s, 최대 각속도 rad/s입니다.
+#   값을 높이면 더 빨리 도착할 수 있지만 command effort가 커질 수 있습니다.
+# target_x, target_y:
+#   offline 시뮬레이션 목표 위치입니다.
+#   멀리 두면 duration_s와 이동 경로가 길어집니다.
+# dt:
+#   시뮬레이션 시간 간격입니다.
+#   작게 하면 더 촘촘하게 계산하지만 sample 수가 늘 수 있습니다.
+# samples:
+#   최대 시뮬레이션 step 수입니다.
+#   너무 작으면 목표에 도착하기 전에 끝날 수 있습니다.
+# linear_gain:
+#   목표까지 거리에서 선속도 명령을 만드는 비율입니다.
+#   키우면 빠르게 전진하려 하지만 max_v 제한을 더 자주 만납니다.
+# angular_gain:
+#   heading error에서 각속도 명령을 만드는 비율입니다.
+#   키우면 방향을 더 빨리 돌리지만 흔들림이 커질 수 있습니다.
+# output_csv:
+#   safe/agile별 duration_s, final_error_m, cmd_effort가 저장됩니다.
+# trajectory_csv:
+#   시간별 x, y, yaw, v, w 기록이 저장됩니다.
+# output_png:
+#   safe/agile 궤적 비교 그림이 저장됩니다.
+# no_plot:
+#   true  -> PNG를 만들지 않습니다.
+#   false -> PNG를 만듭니다.
+lab5:
+  safe_v: 0.15
+  safe_w: 0.8
+  agile_v: 0.26
+  agile_w: 1.2
+  target_x: 2.0
+  target_y: 0.8
+  dt: 0.1
+  samples: 250
+  linear_gain: 0.8
+  angular_gain: 2.0
+  output_csv: results/lab5_practice_metrics.csv
+  trajectory_csv: results/lab5_practice_trajectory.csv
+  output_png: results/lab5_practice_paths.png
+  no_plot: false
+
+
+# Lab 6: 장애물 삽입, costmap clear, 삭제
+# 실행 스크립트: scripts/lab6_practice.py
+#
+# action:
+#   commands -> 사용할 명령 목록만 출력합니다.
+#   spawn    -> Gazebo에 box 장애물을 추가합니다.
+#   clear    -> local/global costmap clear service를 호출합니다.
+#   delete   -> Gazebo에서 box 장애물을 삭제합니다.
+#   cycle    -> spawn -> clear -> delete 순서로 실행합니다.
+# x, y, z:
+#   장애물을 놓을 위치입니다. x, y는 map/world 평면 위치, z는 높이입니다.
+#   x, y를 robot 경로 근처로 두면 Nav2가 장애물 회피/정지를 더 잘 관찰할 수 있습니다.
+# model:
+#   Gazebo model 이름입니다. 여러 장애물을 실험하려면 이름을 다르게 합니다.
+# size_x, size_y, size_z:
+#   장애물 박스의 가로/세로/높이 meter입니다.
+#   크게 하면 costmap에 더 넓게 잡혀 회피가 쉬워지지만 좁은 길을 막을 수 있습니다.
+#   작게 하면 회피 영향이 줄어들고 센서/Costmap에서 늦게 보일 수 있습니다.
+# mass:
+#   Gazebo 물리에서 쓰는 질량 kg입니다.
+#   너무 작으면 충돌 때 쉽게 밀리고, 크게 하면 더 무거운 장애물처럼 동작합니다.
+# color:
+#   Gazebo에서 보이는 색상 RGBA입니다. 0.0~1.0 사이 네 숫자입니다.
+#   예: [0.1, 0.4, 1.0, 1.0] -> 파란색 장애물
+# static:
+#   true  -> Gazebo에서 움직이지 않는 고정 장애물입니다. 회피 실습에는 안정적입니다.
+#   false -> 로봇이나 물리 영향으로 밀릴 수 있는 동적 장애물입니다.
+# sdf:
+#   null이면 size/mass/color/static 값으로 임시 SDF를 자동 생성합니다.
+#   직접 만든 SDF 파일을 쓰고 싶으면 models/my_box.sdf처럼 경로를 넣습니다.
+# spawn_timeout, clear_timeout, delete_timeout:
+#   Gazebo spawn/delete 또는 Nav2 costmap clear service를 몇 초까지 기다릴지 정합니다.
+#   느린 PC에서는 15~20으로 키우면 실패가 줄 수 있습니다.
+# wait_after_spawn:
+#   spawn 후 바로 clear하지 않고 몇 초 기다릴지 정합니다.
+#   값을 주면 RViz/Gazebo에서 장애물이 costmap에 들어오는 시간을 관찰하기 좋습니다.
+# wait_after_clear:
+#   clear 후 몇 초 기다릴지 정합니다.
+# keep_after_cycle:
+#   false -> cycle 마지막에 장애물을 삭제합니다. 반복 실습에 안전합니다.
+#   true  -> cycle 뒤에도 장애물을 남깁니다. 직접 관찰 후 delete action으로 지워야 합니다.
+# dry_run:
+#   true  -> 실제 Gazebo에 spawn/delete하지 않고 명령만 보여줍니다.
+#   false -> 실제 실행합니다.
+lab6:
+  action: commands
+  x: 0.5
+  y: 0.0
+  z: 0.25
+  model: lab_box
+  size_x: 0.35
+  size_y: 0.35
+  size_z: 0.5
+  mass: 1.0
+  color: [0.8, 0.1, 0.1, 1.0]
+  static: false
+  sdf: null
+  spawn_timeout: 10
+  clear_timeout: 10
+  delete_timeout: 10
+  wait_after_spawn: 0
+  wait_after_clear: 0
+  keep_after_cycle: false
+  dry_run: true
+
+
+# Lab 7: rosbag 기록 및 확인
+# 실행 스크립트: scripts/lab7_practice.py
+#
+# action:
+#   topics -> 현재 설정된 기록 topic 목록을 출력합니다.
+#   record -> rosbag 기록을 시작합니다.
+#   info   -> 가장 최근 bag 또는 지정 bag 정보를 확인합니다.
+#   commands -> Lab 7에서 쓸 명령어 목록만 출력합니다.
+# duration:
+#   record를 몇 초 동안 할지 정합니다.
+#   30이면 30초 기록 후 종료합니다. 0이면 사용자가 Ctrl+C로 멈출 때까지 기록합니다.
+# bag:
+#   info에서 확인할 bag 폴더입니다.
+#   null이면 results/nav2* 중 가장 최근 bag을 자동으로 찾습니다.
+# topics:
+#   기록할 ROS topic 목록입니다.
+#   topic을 추가하면 evidence가 풍부해지지만 bag 용량이 커집니다.
+# dry_run:
+#   true  -> rosbag record 명령만 출력합니다.
+#   false -> 실제 기록합니다.
+lab7:
+  action: topics
+  duration: 30
+  bag: null
+  topics:
+    - /scan
+    - /odom
+    - /tf
+    - /tf_static
+    - /map
+    - /cmd_vel
+    - /amcl_pose
+    - /goal_pose
+    - /plan
+    - /local_plan
+  dry_run: false
+
+
+# Lab 8: waypoint mission 및 최종 보고서
+# 실행 스크립트: scripts/lab8_practice.py
+#
+# mode:
+#   preview -> waypoint CSV와 evidence 파일 존재 여부를 확인합니다. 안전한 사전 점검입니다.
+#   mission -> waypoints를 순서대로 Nav2 goal로 보냅니다. Gazebo/Nav2가 실행 중이어야 합니다.
+#   report  -> results/final_report.md 같은 최종 보고서를 생성합니다.
+#   both    -> mission 실행 후 report까지 이어서 수행합니다.
+# waypoints:
+#   mission에 사용할 CSV 파일입니다.
+#   CSV의 x, y, yaw 값을 바꾸면 로봇이 방문하는 목표 순서와 위치가 바뀝니다.
+# timeout:
+#   waypoint 하나당 goal 완료를 기다리는 최대 시간입니다.
+#   목표가 멀거나 실패가 잦으면 값을 키웁니다.
+# output:
+#   report mode에서 생성할 Markdown 보고서 파일입니다.
+lab8:
+  mode: preview
+  waypoints: docs/waypoints_default.csv
+  timeout: 120
+  output: results/final_report.md

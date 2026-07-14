@@ -1,0 +1,7 @@
+numpy
+matplotlib
+pandas
+PyYAML
+Pillow
+tabulate
+pytest

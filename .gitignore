@@ -5,11 +5,11 @@ capstone/capstone 학생용
 capstone/ND1_캡스톤_제출키트_docx
 
 
-**/results/*.png
-**/results/*.gif
+# **/results/*.png
+# **/results/*.gif
 **/results/*.csv
-**/results/*.jpg
-**/results/*.jpeg
+# **/results/*.jpg
+# **/results/*.jpeg
 
 .venv
 

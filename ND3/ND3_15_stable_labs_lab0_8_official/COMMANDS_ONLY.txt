@@ -1,0 +1,168 @@
+ND3-15 Stable Labs Lab0~Lab8 Commands
+======================================
+
+Common in every new terminal:
+  cd ~/Desktop/ND3_15_stable_labs_lab0_8_official
+  source scripts/env.sh
+
+First setup:
+  chmod +x scripts/*.sh python/*.py
+
+Reset when ROS/Gazebo is stuck:
+  bash scripts/reset_ros.sh
+
+
+Lab 0 — Environment check
+-------------------------
+  source scripts/env.sh
+  bash scripts/lab0_env_check.sh
+  python3 scripts/lab0_practice.py --static-check --strict
+
+
+Lab 1 — Gazebo and runtime check
+--------------------------------
+Terminal 1:
+  source scripts/env.sh
+  bash scripts/lab1_start_gazebo.sh
+
+Terminal 2:
+  source scripts/env.sh
+  bash scripts/lab1_runtime_smoke_check.sh
+  python3 scripts/lab1_practice.py --action check --timeout 5
+
+
+Lab 2 — SLAM map creation and map management
+--------------------------------------------
+Terminal 1: keep Gazebo from Lab 1 running.
+
+Terminal 2:
+  source scripts/env.sh
+  bash scripts/lab2_start_slam_toolbox.sh
+
+Terminal 3:
+  source scripts/env.sh
+  bash scripts/lab2_start_rviz_safe.sh
+
+Terminal 4:
+  source scripts/env.sh
+  bash scripts/lab2_teleop.sh
+
+Terminal 5:
+  source scripts/env.sh
+  bash scripts/lab2_map_status.sh
+  bash scripts/lab2_save_map.sh maps/lab_map
+
+Map file practice:
+  python3 scripts/lab2_practice.py --action inspect-map --map maps/lab_map.yaml
+  python3 scripts/lab2_practice.py --action list-maps
+  python3 scripts/lab2_practice.py --action backup-map --map maps/lab_map.yaml
+  python3 scripts/lab2_practice.py --action delete-map --map maps/lab_map.yaml
+  python3 scripts/lab2_practice.py --action delete-map --map maps/lab_map.yaml --confirm-delete
+  python3 scripts/lab2_practice.py --action restore-map --backup-dir maps/backups/lab_map_YYYYMMDD_HHMMSS --overwrite
+
+
+Lab 3 — Official saved-map Nav2
+-------------------------------
+Stop SLAM/RViz/teleop/Gazebo first, then start fresh.
+
+Terminal 1:
+  source scripts/env.sh
+  bash scripts/lab1_start_gazebo.sh
+
+Terminal 2:
+  source scripts/env.sh
+  bash scripts/lab3_start_nav2_official.sh maps/lab_map.yaml
+
+Terminal 3:
+  source scripts/env.sh
+  bash scripts/lab3_nav2_status.sh
+  bash scripts/lab3_set_initial_pose.sh 0.0 0.0 0.0
+  bash scripts/lab3_send_goal.sh 0.5 0.0 0.0
+  python3 scripts/lab3_practice.py --action stop
+
+Terminal 4:
+  source scripts/env.sh
+  bash scripts/lab3_start_rviz_safe.sh
+
+Python practice:
+  python3 scripts/lab3_practice.py --action map-check --map maps/lab_map.yaml
+  python3 scripts/lab3_practice.py --action status
+  python3 scripts/lab3_practice.py --action initial-pose --x 0.0 --y 0.0 --yaw 0.0
+  python3 scripts/lab3_practice.py --action goal --x 0.5 --y 0.0 --yaw 0.0 --timeout 120
+
+
+Lab 4 — Offline planner comparison
+----------------------------------
+  python3 scripts/lab4_practice.py --list-algorithms
+  python3 scripts/lab4_practice.py --map maps/lab_map.yaml --start-x 0.0 --start-y 0.0 --goal-x 1.0 --goal-y 1.0 --algorithms dijkstra astar weighted_astar greedy rrt
+  bash scripts/lab4_planner_offline.sh maps/lab_map.yaml
+
+
+Lab 5 — Offline DWB Safe/Agile comparison
+-----------------------------------------
+  python3 scripts/lab5_practice.py
+  python3 scripts/lab5_practice.py --safe-v 0.12 --safe-w 0.7 --agile-v 0.30 --agile-w 1.4 --target-x 2.0 --target-y 0.8
+  bash scripts/lab5_dwb_safe_agile_offline.sh
+
+
+Lab 6 — Obstacle, costmap clear, delete
+---------------------------------------
+Run while Gazebo + Nav2 are running.
+
+Basic:
+  source scripts/env.sh
+  python3 scripts/lab6_practice.py --action cycle --dry-run
+  python3 scripts/lab6_practice.py --action spawn --x 0.5 --y 0.0 --z 0.25 --model lab_box
+  python3 scripts/lab6_practice.py --action clear
+  python3 scripts/lab6_practice.py --action delete --model lab_box
+
+With obstacle parameters:
+  python3 scripts/lab6_practice.py --action cycle --x 0.7 --y 0.2 --z 0.25 --model lab_box_big --size-x 0.6 --size-y 0.3 --size-z 0.5 --mass 2.0 --color 0.1 0.4 1.0 1.0 --static --wait-after-spawn 3 --clear-timeout 15
+
+Wrappers:
+  bash scripts/lab6_spawn_box.sh 0.5 0.0 0.25
+  bash scripts/lab6_spawn_box.sh 0.7 0.2 0.25 lab_box_big --size-x 0.6 --size-y 0.3 --size-z 0.5 --static
+  bash scripts/lab6_clear_costmaps.sh 15
+  bash scripts/lab6_delete_box.sh lab_box
+
+
+Lab 7 — Rosbag record and info
+------------------------------
+Run while Gazebo + Nav2 are running.
+
+  source scripts/env.sh
+  python3 scripts/lab7_practice.py --action topics
+  python3 scripts/lab7_practice.py --action record --duration 30
+  python3 scripts/lab7_practice.py --action info
+  python3 scripts/lab7_practice.py --action info --bag results/nav2_YYYYMMDD_HHMMSS
+  bash scripts/lab7_record_bag.sh
+  bash scripts/lab7_bag_info.sh
+
+
+Lab 8 — Mission and report
+--------------------------
+Run mission while Gazebo + Nav2 are running.
+
+  source scripts/env.sh
+  python3 scripts/lab8_practice.py --mode preview --waypoints docs/waypoints_default.csv
+  python3 scripts/lab8_practice.py --mode mission --waypoints docs/waypoints_default.csv --timeout 120
+  python3 scripts/lab8_practice.py --mode report --output results/final_report.md
+  python3 scripts/lab8_practice.py --mode both --waypoints docs/waypoints_default.csv --output results/final_report.md
+  bash scripts/lab8_run_mission.sh
+  bash scripts/lab8_make_report.sh
+
+
+YAML parameter runner
+---------------------
+  python3 scripts/lab_params.py --lab all
+  python3 scripts/lab_params.py --lab lab4 --show-values
+  python3 scripts/lab_params.py --lab lab4 --run
+  python3 scripts/lab_params.py --lab lab6 --set action=cycle --set size_x=0.6 --set static=true --set dry_run=true --show-values
+
+
+Final evidence and test checks
+------------------------------
+  python3 tools/static_check.py
+  bash scripts/run_python_offline_tests.sh
+  find maps -maxdepth 1 -type f -print
+  find results -maxdepth 2 -type f -print

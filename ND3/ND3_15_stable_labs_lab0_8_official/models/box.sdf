@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="lab_box">
+    <static>false</static>
+    <link name="link">
+      <pose>0 0 0.25 0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box><size>0.35 0.35 0.5</size></box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box><size>0.35 0.35 0.5</size></box>
+        </geometry>
+        <material>
+          <ambient>0.8 0.1 0.1 1</ambient>
+          <diffuse>0.8 0.1 0.1 1</diffuse>
+        </material>
+      </visual>
+      <inertial>
+        <mass>1.0</mass>
+        <inertia>
+          <ixx>0.02</ixx><iyy>0.02</iyy><izz>0.02</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+        </inertia>
+      </inertial>
+    </link>
+  </model>
+</sdf>
